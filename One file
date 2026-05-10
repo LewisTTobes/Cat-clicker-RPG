@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cat Clicker RPG</title>
+
+<style>
+body{
+    margin:0;
+    background:#181818;
+    color:white;
+    font-family:Arial;
+    text-align:center;
+}
+
+.screen{
+    display:none;
+    padding:20px;
+}
+
+.active{
+    display:block;
+}
+
+button{
+    padding:14px 22px;
+    margin:10px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    font-size:18px;
+    font-weight:bold;
+}
+
+.cat{
+    font-size:150px;
+    cursor:pointer;
+    user-select:none;
+    transition:0.1s;
+}
+
+.cat:active{
+    transform:scale(0.9);
+}
+
+.hpbar{
+    width:320px;
+    height:30px;
+    background:#444;
+    border-radius:20px;
+    overflow:hidden;
+    margin:auto;
+}
+
+.hpfill{
+    height:100%;
+    width:100%;
+    background:red;
+}
+
+.weaponPreview{
+    font-size:80px;
+    margin:20px;
+}
+
+.info{
+    font-size:22px;
+    margin:10px;
+}
+</style>
+</head>
+<body>
+
+<!-- CLICKER -->
+<div id="clicker" class="screen active">
+
+    <h1>🐱 Cat Clicker RPG</h1>
+
+    <div class="cat" id="cat">🐱</div>
+
+    <div class="info">
+        Clicks: <span id="clicks">0</span>
+    </div>
+
+    <div class="info">
+        Click Power: <span id="clickPower">1</span>
+    </div>
+
+    <button onclick="buyUpgrade()">
+        Upgrade Cat Clicker (+20 Clicks)
+        <br>
+        Cost: 150 Clicks
+    </button>
+
+    <br><br>
+
+    <button onclick="openBlacksmith()">
+        Go To Blacksmith
+        <br>
+        (Requires 10,000,000 Clicks)
+    </button>
+
+</div>
+
+<!-- BLACKSMITH -->
+<div id="blacksmith" class="screen">
+
+    <h1>⚒️ Blacksmith</h1>
+
+    <h2>Choose Weapon Style</h2>
+
+    <button onclick="setStyle('Sword',10,'🗡️')">Sword</button>
+    <button onclick="setStyle('Hammer',15,'🔨')">Hammer</button>
+    <button onclick="setStyle('Spear',12,'🪄')">Spear</button>
+
+    <h2>Choose Weapon Color</h2>
+
+    <button onclick="setColor('silver')">Silver</button>
+    <button onclick="setColor('gold')">Gold</button>
+    <button onclick="setColor('red')">Red</button>
+    <button onclick="setColor('cyan')">Cyan</button>
+
+    <div id="weaponPreview" class="weaponPreview">🗡️</div>
+
+    <h2 id="weaponText">No weapon selected</h2>
+
+    <button onclick="startBossFight()">
+        Fight King Dog
+    </button>
+
+</div>
+
+<!-- BOSS -->
+<div id="bossfight" class="screen">
+
+    <h1>👑 KING DOG 👑</h1>
+
+    <div style="font-size:140px;">🐶</div>
+
+    <h2>Boss HP</h2>
+
+    <div class="hpbar">
+        <div id="bossHPBar" class="hpfill"></div>
+    </div>
+
+    <h2 id="bossHPText">100 / 100</h2>
+
+    <h2>Your Weapon</h2>
+
+    <div id="fightWeapon" class="weaponPreview"></div>
+
+    <button onclick="attackBoss()">
+        ATTACK
+    </button>
+
+    <h2 id="battleText"></h2>
+
+</div>
+
+<!-- VICTORY -->
+<div id="victory" class="screen">
+
+    <h1>🏆 YOU WIN 🏆</h1>
+
+    <div style="font-size:150px;">🎉</div>
+
+    <h2>You defeated King Dog!</h2>
+
+    <button onclick="restartGame()">
+        Play Again
+    </button>
+
+</div>
+
+<script>
+
+let clicks = 0;
+let clickPower = 1;
+
+let weaponStyle = "Sword";
+let weaponDamage = 10;
+let weaponEmoji = "🗡️";
+let weaponColor = "silver";
+
+let bossHP = 100;
+
+const clicksText = document.getElementById("clicks");
+const clickPowerText = document.getElementById("clickPower");
+
+document.getElementById("cat").onclick = () => {
+
+    clicks += clickPower;
+
+    updateClickUI();
+};
+
+function updateClickUI(){
+
+    clicksText.textContent = clicks.toLocaleString();
+    clickPowerText.textContent = clickPower;
+}
+
+function buyUpgrade(){
+
+    if(clicks < 150){
+
+        alert("Not enough clicks!");
+        return;
+    }
+
+    clicks -= 150;
+
+    clickPower += 20;
+
+    updateClickUI();
+}
+
+function openBlacksmith(){
+
+    if(clicks < 10000000){
+
+        alert("You need 10,000,000 clicks!");
+        return;
+    }
+
+    showScreen("blacksmith");
+}
+
+function showScreen(id){
+
+    document.querySelectorAll(".screen").forEach(screen=>{
+        screen.classList.remove("active");
+    });
+
+    document.getElementById(id).classList.add("active");
+}
+
+function setStyle(style, damage, emoji){
+
+    weaponStyle = style;
+    weaponDamage = damage;
+    weaponEmoji = emoji;
+
+    updateWeapon();
+}
+
+function setColor(color){
+
+    weaponColor = color;
+
+    updateWeapon();
+}
+
+function updateWeapon(){
+
+    const preview = document.getElementById("weaponPreview");
+
+    preview.textContent = weaponEmoji;
+    preview.style.color = weaponColor;
+
+    document.getElementById("weaponText").textContent =
+        weaponColor + " " + weaponStyle +
+        " | Damage: " + weaponDamage;
+}
+
+function startBossFight(){
+
+    showScreen("bossfight");
+
+    const fw = document.getElementById("fightWeapon");
+
+    fw.textContent = weaponEmoji;
+    fw.style.color = weaponColor;
+
+    updateBossUI();
+}
+
+function attackBoss(){
+
+    bossHP -= weaponDamage;
+
+    if(bossHP < 0){
+        bossHP = 0;
+    }
+
+    document.getElementById("battleText").textContent =
+        "You dealt " + weaponDamage + " damage!";
+
+    updateBossUI();
+
+    if(bossHP <= 0){
+
+        setTimeout(()=>{
+            showScreen("victory");
+        },500);
+    }
+}
+
+function updateBossUI(){
+
+    document.getElementById("bossHPText").textContent =
+        bossHP + " / 100";
+
+    document.getElementById("bossHPBar").style.width =
+        bossHP + "%";
+}
+
+function restartGame(){
+
+    clicks = 0;
+    clickPower = 1;
+    bossHP = 100;
+
+    updateClickUI();
+
+    showScreen("clicker");
+}
+
+updateClickUI();
+
+</script>
+
+</body>
+</html>
